@@ -4,7 +4,7 @@ amaranto em flocos,grao-cereal,src/images/amarantoemflocos_nayna.jpg,descriçao,
 aveia em flocos sem gluten,grao-cereal,src/images/aveia-flocos-sem-gluten_nutrimais.jpg,descriçao,1
 aveia integral,grao-cereal,src/images/aveia-integral_nutrimais.jpg,descriçao,1
 cacau em pó,outros,src/images/cacau-em-po_nutrimais.jpg,descriçao,1
-canipure,outros,src/images/carnipure_suplera.jpg,descriçao,1
+canipure,suplementos,src/images/carnipure_suplera.jpg,descriçao,1
 castanha de caju,outros,src/images/castanha-de-caju_nayna.jpg,descriçao,1
 castanha do pará,outros,src/images/castanha-do-para-torrado_nayna.jpg,descriçao,1
 chá de melissa,chas,src/images/cha-de-melissa_nayna.jpg,descriçao,1
@@ -29,7 +29,7 @@ gérmem de trigo,grao-cereal,src/images/germem-de-trigo_nutrimais.jpg,descriçao
 granola com chocolate,grao-cereal,src/images/granola-com-chocolate1_nayna.jpg,descriçao,1
 granola enriquecida,grao-cereal,src/images/granola-enriquecida1_nayna.jpg,descriçao,1
 granola light,grao-cereal,src/images/granola-ligth_nayna.jpg,descriçao,1
-maca peruan em pó,suplementos,src/images/maca-peruana-em-po_nutrimais.jpg,descriçao,1
+maca peruan em pó,grao-cereal,src/images/maca-peruana-em-po_nutrimais.jpg,descriçao,1
 mel âmbar claro,outros,src/images/mel-ambar-claro_prodapys.jpg,descriçao,1
 mel flores de laranjeira,outros,src/images/mel-floresdelaranjeira_prodapys.jpg,descriçao,1
 mel,outros,src/images/mel280_casagrande.jpg,descriçao,1
