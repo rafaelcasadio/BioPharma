@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="src/styles/styles.css">
+    <link rel="stylesheet" href="src/styles/produtos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <title>BioPharma</title>
+    <link rel="shortcut icon" href="src/images/icon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <nav id="navbar">
+            <a href="index.html" style="text-decoration: none;" id="nav_logo"><img src="src/images/icon.png" >BioPharma</a>
+
+            <ul id="nav_list">
+                <li class="nav-item">
+                    <a href="index.html">Início</a>
+                </li>
+                <li class="nav-item active">
+                    <a href="">Produtos</a>
+                </li>
+
+            </ul>
+
+            <a href="https://wa.me/32988722143" target="_blank" style="text-decoration: none;" id="link_btn_header">
+                <button class="btn-default">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    Peça aqui
+                </button> </a>
+
+            <button id="mobile_btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </nav>
+
+        <div id="mobile_menu">
+            <ul id="mobile_nav_list">
+                <li class="nav-item">
+                    <a href="index.html">Início</a>
+                </li>
+                <li class="nav-item">
+                    <a href="">Produtos</a>
+                </li>
+
+            </ul>
+
+            <a href="https://wa.me/32988722143" target="_blank" style="text-decoration: none;" id="mobile_btn">
+                <button class="btn-default">
+                    Peça aqui
+                </button> </a>
+        </div>
+    </header>
+
+    <section id="produtos">
+        <div class="filter">
+            <label for="filtro" class="filter-text">Filtrar por categoria:</label>
+            <select id="filtro" onchange="atualizarProdutos()">
+                <option value="todos">Todos os produtos</option>
+                <option value="remedios">Remédios</option>
+                <option value="chas">Chás</option>
+                <option value="grao-cereal">Grãos/Cereais</option>
+                <option value="suplementos">Suplementos</option>
+                <option value="fibras">Fibras</option>
+                <option value="sementes">Sementes</option>
+                <option value="outros">Outros</option>
+               
+            </select>
+        </div>
+        <br><br><br>
+
+        <div id="conteudoProdutos"></div>
+
+
+
+    </section>
+
+   <script>
+        let arrayProdutos = []; // Declare a variável arrayProdutos fora do escopo da função
+
+        // Função para ler um arquivo CSV e converter em um array de objetos de produtos
+        function lerCSVParaArray(nomeArquivo, callback) {
+            fetch(nomeArquivo)
+                .then(response => response.text())
+                .then(text => {
+                    const linhas = text.split('\n');
+                    const produtos = [];
+
+                    for (let i = 1; i < linhas.length; i++) {
+                        const valores = linhas[i].split(',');
+                        const produto = {
+                            nome: valores[0].trim(),
+                            categoria: valores[1].trim(),
+                            imagem: valores[2].trim(), // Assumindo que a terceira coluna é o caminho da imagem
+                            descricao: valores[3].trim(), // Assumindo que a quarta coluna é a descrição
+                            valor: parseFloat(valores[4].trim()) // Converte o valor para número
+                        };
+
+                        produtos.push(produto);
+                    }
+
+                    arrayProdutos = produtos; // Atribua os produtos ao arrayProdutos aqui
+
+                    callback(null, produtos);
+                })
+                .catch(error => {
+                    callback(error, null);
+                });
+        }
+
+        // Exemplo de uso
+        const nomeArquivo = 'remedios.csv';
+        lerCSVParaArray(nomeArquivo, (erro, produtos) => {
+            if (erro) {
+                console.error('Erro ao ler o arquivo CSV:', erro);
+            } else {
+                console.log(arrayProdutos);
+                atualizarProdutos(); // Chame a função atualizarProdutos após carregar os produtos
+            }
+        });
+
+        // Função para exibir os produtos com base no filtro selecionado
+        function atualizarProdutos() {
+            const filtro = document.getElementById("filtro").value;
+            const conteudoProdutos = document.getElementById("conteudoProdutos");
+
+            // Limpa o conteúdo de produtos
+            conteudoProdutos.innerHTML = "";
+
+            // Filtra os produtos com base na categoria selecionada
+            const produtosFiltrados = filtro === "todos" ? arrayProdutos : arrayProdutos.filter(produto => produto.categoria === filtro);
+
+            // Exibe os produtos na div
+            produtosFiltrados.forEach(produto => {
+                const divProduto = document.createElement("div");
+                divProduto.className = "produto";
+
+                // Adiciona a imagem
+                const img = document.createElement("img");
+                img.src = produto.imagem;
+                img.alt = produto.nome;
+                divProduto.appendChild(img);
+
+                //adiciona heart
+                const heartDiv = document.createElement("div");
+                heartDiv.className = "div-heart";
+                const heartIcon = document.createElement("i");
+                heartIcon.className = "fa-solid fa-heart";
+                heartDiv.appendChild(heartIcon);
+                divProduto.appendChild(heartDiv);
+
+                // Adiciona o nome
+                const nomeProduto = document.createElement("p");
+                nomeProduto.textContent = produto.nome;
+                nomeProduto.className = "nome-produto";
+                divProduto.appendChild(nomeProduto);
+
+                //adiciona descriçaõ
+                const descricaoProduto = document.createElement("p");
+                descricaoProduto.textContent = produto.descricao;
+                descricaoProduto.className = "descricao-produto";
+                divProduto.appendChild(descricaoProduto);
+
+                // Adiciona o valor
+                const valorProduto = document.createElement("p");
+                valorProduto.textContent = `R$${produto.valor.toFixed(2)}`;
+                valorProduto.className = "valor-produto";
+                divProduto.appendChild(valorProduto);
+
+                conteudoProdutos.appendChild(divProduto);
+            });
+        }
+    </script>
+
+    <footer>
+        <img src="src/images/wave.svg" alt="">
+
+        <div id="footer_items">
+            <span id="copyright">
+                &copy 2024 BioPharma
+            </span>
+
+            <div class="social-media-buttons">
+                <a href="">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+
+                <a href="https://www.instagram.com/biopharmaleopoldina" target="_blank">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+
+                <a href="https://www.facebook.com/BioPharmaLeopoldina" target="_blank">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script src="src/script/script.js"></script>
+</body>
+
+</html>
