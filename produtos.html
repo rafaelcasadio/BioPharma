@@ -20,7 +20,8 @@
 <body>
     <header>
         <nav id="navbar">
-            <a href="index.html" style="text-decoration: none;" id="nav_logo"><img src="src/images/icon.png" >BioPharma</a>
+            <a href="index.html" style="text-decoration: none;" id="nav_logo"><img
+                    src="src/images/icon.png">BioPharma</a>
 
             <ul id="nav_list">
                 <li class="nav-item">
@@ -74,7 +75,7 @@
                 <option value="sementes">Sementes</option>
                 <option value="fisioquantic">Linha FisioQuantic</option>
                 <option value="outros">Outros</option>
-               
+
             </select>
         </div>
         <br><br><br>
@@ -85,7 +86,7 @@
 
     </section>
 
-   <script>
+    <script>
         let arrayProdutos = []; // Declare a variável arrayProdutos fora do escopo da função
 
         // Função para ler um arquivo CSV e converter em um array de objetos de produtos
@@ -172,10 +173,26 @@
                 divProduto.appendChild(descricaoProduto);
 
                 // Adiciona o valor
+                const div = document.createElement("div");
+                div.className = "div-alinhar";
                 const valorProduto = document.createElement("p");
                 valorProduto.textContent = `R$${produto.valor.toFixed(2)}`;
                 valorProduto.className = "valor-produto";
-                divProduto.appendChild(valorProduto);
+                div.appendChild(valorProduto);
+                divProduto.appendChild(div);
+
+                //adiciona icon
+                const btn = document.createElement("button");
+                btn.className = "btn-default";
+                const icon = document.createElement("i");
+                icon.className = "fa-solid fa-basket-shopping";
+                btn.appendChild(icon);
+
+                div.appendChild(btn);
+
+                btn.addEventListener("click", function () {
+                    window.open("https://wa.me/32988722143", "_blank");
+                });
 
                 conteudoProdutos.appendChild(divProduto);
             });
