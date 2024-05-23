@@ -13,19 +13,19 @@ chá verde,chas,src/images/cha-verde_nayna.jpg,descriçao,1
 circumicel,suplementos,src/images/circumicel_suplera.jpg,descriçao,1
 coenzima 10,suplementos,src/images/coenzimaq10_floranativa.jpg,descriçao,1
 cranberry,outros,src/images/cranberry_nayna.jpg,descriçao,1
-farinha de aveia integral,farinhas,src/images/farinha-de-aveia-integral_nutrimais.jpg,descriçao,1
-farinha de banana verde,farinhas,src/images/farinha-de-banana-verde_nutrimais.jpg,descriçao,1
-farinha de berinjela,farinhas,src/images/farinha-de-berinjela_nutrimais.jpg,descriçao,1
-farinha de chia,farinhas,src/images/farinha-de-chia_nutrimais.jpg,descriçao,1
-farinha de linhaça,farinhas,src/images/farinha-de-linhaca1_nayna.jpg,descriçao,1
-farinha de trigo integral,farinhas,src/images/farinha-de-trigo-integral_nutrimais.jpg,descriçao,1
-farinha de linhaça dourada,farinhas,src/images/farinha-linhaca-dourada_nutrimais.jpg,descriçao,1
-farinha de linhaça marrom,farinhas,src/images/farinha-linhaca-marrom_nutrimais.jpg,descriçao,1
-fibra da casca de maracuja,fibras,src/images/fibra-da-casca-de-maracuja_nayna.jpg,descriçao,1
-fibra de trigo,fibras,src/images/fibra-de-trigo_nutrimais.jpg,descriçao,1
+farinha de aveia integral,grao-cereal,src/images/farinha-de-aveia-integral_nutrimais.jpg,descriçao,1
+farinha de banana verde,grao-cereal,src/images/farinha-de-banana-verde_nutrimais.jpg,descriçao,1
+farinha de berinjela,grao-cereal,src/images/farinha-de-berinjela_nutrimais.jpg,descriçao,1
+farinha de chia,grao-cereal,src/images/farinha-de-chia_nutrimais.jpg,descriçao,1
+farinha de linhaça,grao-cereal,src/images/farinha-de-linhaca1_nayna.jpg,descriçao,1
+farinha de trigo integral,grao-cereal,src/images/farinha-de-trigo-integral_nutrimais.jpg,descriçao,1
+farinha de linhaça dourada,grao-cereal,src/images/farinha-linhaca-dourada_nutrimais.jpg,descriçao,1
+farinha de linhaça marrom,grao-cereal,src/images/farinha-linhaca-marrom_nutrimais.jpg,descriçao,1
+fibra da casca de maracuja,grao-cereal,src/images/fibra-da-casca-de-maracuja_nayna.jpg,descriçao,1
+fibra de trigo,grao-cereal,src/images/fibra-de-trigo_nutrimais.jpg,descriçao,1
 gerfelim branco,sementes,src/images/gergelim-branco_nutrimais.jpg,descriçao,1
 gergelim preto,sementes,src/images/gergelim-preto_nutrimais.jpg,descriçao,1
-gérmem de trigo,outros,src/images/germem-de-trigo_nutrimais.jpg,descriçao,1
+gérmem de trigo,grao-cereal,src/images/germem-de-trigo_nutrimais.jpg,descriçao,1
 granola com chocolate,grao-cereal,src/images/granola-com-chocolate1_nayna.jpg,descriçao,1
 granola enriquecida,grao-cereal,src/images/granola-enriquecida1_nayna.jpg,descriçao,1
 granola light,grao-cereal,src/images/granola-ligth_nayna.jpg,descriçao,1
@@ -39,7 +39,7 @@ proteina de soja teturizada caramelo,grao-cereal,src/images/proteina-de-soja-tex
 proteina de soja teturizada natural,grao-cereal,src/images/proteina-de-soja-texturizada-natural_nutrimais.jpg,descriçao,1
 psyllium em flocos,grao-cereal,src/images/psyllium-em-flocos_nutrimais.jpg,descriçao,1
 quinoa,grao-cereal,src/images/quinoa_nutrimais.jpg,descriçao,1
-sal rosa do himalaia,sementes,src/images/sal-rosa-do-himalaia_nutrimais.jpg,descriçao,1
+sal rosa do himalaia,outros,src/images/sal-rosa-do-himalaia_nutrimais.jpg,descriçao,1
 semente de abobora crua,sementes,src/images/semente-de-abobora-crua_nutrimais.jpg,descriçao,1
 semente de abobora torrada,sementes,src/images/semente-de-abobora-torrado-sem-sal_nayna.jpg,descriçao,1
 semente de chia,sementes,src/images/semente-de-chia_nutrimais.jpg,descriçao,1
@@ -50,3 +50,23 @@ tcm,suplementos,src/images/tcm_suplera.jpg,descriçao,1
 vitamina b12,suplementos,src/images/vitaminab12_floranativa.jpg,descriçao,1
 vitamina d3,suplementos,src/images/vitaminad3_floranativa.jpg,descriçao,1
 vitamina k12,suplementos,src/images/vitaminak12_floranativa.jpg,descriçao,1
+analgesium,fisioquantic,src/images/analgesium.jpg,descriçao,1
+angelicallis,fisioquantic,src/images/angelicallis.jpg,descriçao,1
+antilec,fisioquantic,src/images/antilec.jpg,descriçao,1
+biomama,fisioquantic,src/images/biomama.jpg,descriçao,1
+calmallis,fisioquantic,src/images/calmallis.jpg,descriçao,1
+cardinalis,fisioquantic,src/images/cardinalis.jpg,descriçao,1
+colamin,fisioquantic,src/images/colamin.jpg,descriçao,1
+criativia,fisioquantic,src/images/criativia.jpg,descriçao,1
+digeris,fisioquantic,src/images/digeris.jpg,descriçao,1
+digeryl,fisioquantic,src/images/digeryl.jpg,descriçao,1
+filther,fisioquantic,src/images/filther.jpg,descriçao,1
+flowernigra,fisioquantic,src/images/flowernigra.jpg,descriçao,1
+linfodetox,fisioquantic,src/images/linfodetox.jpg,descriçao,1
+mexicallis,fisioquantic,src/images/mexicallis.jpg,descriçao,1
+neurovit,fisioquantic,src/images/neurovit.jpg,descriçao,1
+oxyflower,fisioquantic,src/images/oxyflower.jpg,descriçao,1
+pinecept,fisioquantic,src/images/pinecept.jpg,descriçao,1
+renaldetox,fisioquantic,src/images/renaldetox.jpg,descriçao,1
+traumavit,fisioquantic,src/images/traumavit.jpg,descriçao,1
+venusflower,fisioquantic,src/images/venusflower.jpg,descriçao,1
