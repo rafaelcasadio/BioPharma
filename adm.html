@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - BioPharma</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input,
+        textarea,
+        button {
+            margin: 10px;
+            padding: 10px;
+            width: 300px;
+        }
+
+        #product-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .product {
+            background-color: white;
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            width: 80%;
+            text-align: center;
+        }
+
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .edit-form input,
+        .edit-form textarea,
+        .edit-form button {
+            margin: 5px;
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Administração de Produtos</h1>
+    <input type="file" id="fileInput">
+    <form id="product-form">
+        <input type="text" id="nome" placeholder="Nome" required>
+        <input type="text" id="tipo" placeholder="Tipo" required>
+        <input type="text" id="url" placeholder="URL da Imagem" required>
+        <textarea id="descricao" placeholder="Descrição" required></textarea>
+        <input type="number" step="0.01" id="valor" placeholder="Valor" required>
+        <button type="submit" style="width: 100px;">Adicionar Produto</button>
+    </form>
+
+
+    <button id="saveButton" style="background-color: green; color: white;">Baixar Arquivo</button>
+
+    <div id="product-list">
+        <!-- Produtos serão listados aqui -->
+    </div>
+
+    <script>
+        let arrayProdutos = [];
+        let editIndex = -1;
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const text = e.target.result;
+                const linhas = text.split('\n');
+                if (linhas[linhas.length - 1] === "") linhas.pop(); // Remove a última linha vazia, se existir
+
+                for (let i = 0; i < linhas.length; i++) {
+                    const valores = linhas[i].split(',');
+                    if (valores.length < 5) continue;
+
+                    const produto = {
+                        nome: valores[0].trim(),
+                        tipo: valores[1].trim(),
+                        url: valores[2].trim(),
+                        descricao: valores[3].trim(),
+                        valor: parseFloat(valores[4].trim())
+                    };
+                    arrayProdutos.push(produto);
+                }
+
+                atualizarProdutos();
+            };
+
+            reader.readAsText(file);
+        });
+
+
+        document.getElementById('product-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const produto = {
+                nome: document.getElementById('nome').value,
+                tipo: document.getElementById('tipo').value,
+                url: document.getElementById('url').value,
+                descricao: document.getElementById('descricao').value,
+                valor: parseFloat(document.getElementById('valor').value)
+            };
+
+            if (editIndex === -1) {
+                arrayProdutos.push(produto);
+            } else {
+                arrayProdutos[editIndex] = produto;
+                editIndex = -1;
+            }
+
+            atualizarProdutos();
+            document.getElementById('product-form').reset();
+        });
+
+
+        document.getElementById('saveButton').addEventListener('click', function () {
+            let csvContent = "";
+            arrayProdutos.forEach(produto => {
+                csvContent += `${produto.nome},${produto.tipo},${produto.url},${produto.descricao},${produto.valor}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "products.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+
+        function atualizarProdutos() {
+            const conteudoProdutos = document.getElementById('product-list');
+            conteudoProdutos.innerHTML = "";
+
+            arrayProdutos.forEach((produto, index) => {
+                const divProduto = document.createElement('div');
+                divProduto.className = 'product';
+
+                const nomeProduto = document.createElement('p');
+                nomeProduto.textContent = `${produto.nome} - ${produto.tipo}`;
+                divProduto.appendChild(nomeProduto);
+
+                const descricaoProduto = document.createElement('p');
+                descricaoProduto.textContent = produto.descricao;
+                divProduto.appendChild(descricaoProduto);
+
+                const valorProduto = document.createElement('p');
+                valorProduto.textContent = `R$${produto.valor.toFixed(2)}`;
+                divProduto.appendChild(valorProduto);
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Editar';
+                editButton.onclick = function () {
+                    document.getElementById('nome').value = produto.nome;
+                    document.getElementById('tipo').value = produto.tipo;
+                    document.getElementById('url').value = produto.url;
+                    document.getElementById('descricao').value = produto.descricao;
+                    document.getElementById('valor').value = produto.valor;
+                    editIndex = index;
+                };
+                divProduto.appendChild(editButton);
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remover';
+                removeButton.onclick = function () {
+                    arrayProdutos.splice(index, 1);
+                    atualizarProdutos();
+                };
+                divProduto.appendChild(removeButton);
+
+                conteudoProdutos.appendChild(divProduto);
+            });
+        }
+    </script>
+</body>
+
+</html>
