@@ -90,6 +90,13 @@
     }
 }
 
+.filter{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .filter-text {
     color: var(--color-primary-6);
     font-size: 1rem;
@@ -107,4 +114,113 @@
     justify-content: space-evenly;
     align-items: center;
     gap: 15px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 25px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 220px; /* Ajuste conforme necessário */
+}
+
+.search-bar i {
+    color: #666;
+    font-size: 1.0em;
+    margin-right: 8px;
+}
+
+.search-bar input[type="text"] {
+    border: none;
+    outline: none;
+    padding: 4px;
+    border-radius: 25px;
+    flex: 1;
+    background: transparent;
+    color: #333;
+    font-size: 0.8em;
+}
+
+.search-bar input[type="text"]::placeholder {
+    color: #aaa;
+}
+
+/* Estilo do botão de rolar para o topo */
+.scroll-to-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-to-top-btn i {
+    font-size: 18px;
+}
+
+.scroll-to-top-btn:hover {
+    scale: 1.1;
+}
+
+@media screen and (max-width: 1170px) {
+    .search-bar {
+        display: none;
+    }
+
+    .mobile-search-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        padding: 2px 6px;
+        border-radius: 25px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+    }
+
+    .mobile-search-bar i {
+        color: #666;
+        font-size: 1.0em;
+        margin-right: 8px;
+    }
+
+    .mobile-search-bar input[type="text"] {
+        border: none;
+        outline: none;
+        padding: 4px;
+        border-radius: 25px;
+        flex: 1;
+        background: transparent;
+        color: #333;
+        font-size: 0.8em;
+    }
+
+    .mobile-search-bar input[type="text"]::placeholder {
+        color: #aaa;
+    }
+}
+
+@media screen and (min-width: 1171px) {
+    .mobile-search-bar {
+        display: none;
+    }
 }

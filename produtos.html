@@ -30,14 +30,21 @@
                 <li class="nav-item active">
                     <a href="">Produtos</a>
                 </li>
-
             </ul>
+
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search" oninput="atualizarProdutos()" placeholder="Digite o nome do produto...">
+            </div>
+
+
 
             <a href="https://wa.me/32988722143" target="_blank" style="text-decoration: none;" id="link_btn_header">
                 <button class="btn-default">
                     <i class="fa-brands fa-whatsapp"></i>
                     Peça aqui
-                </button> </a>
+                </button>
+            </a>
 
             <button id="mobile_btn">
                 <i class="fa-solid fa-bars"></i>
@@ -52,41 +59,52 @@
                 <li class="nav-item">
                     <a href="">Produtos</a>
                 </li>
-
             </ul>
 
             <a href="https://wa.me/32988722143" target="_blank" style="text-decoration: none;" id="mobile_btn">
                 <button class="btn-default">
                     Peça aqui
-                </button> </a>
+                </button>
+            </a>
         </div>
     </header>
 
+    <button id="scrollToTopBtn" class="scroll-to-top-btn">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+
     <section id="produtos">
-        <h1>Teste</h1>
+        <h1>Produtos</h1>
+
         <div class="filter">
-            <label for="filtro" class="filter-text">Filtrar por categoria:</label>
-            <select id="filtro" onchange="atualizarProdutos()">
-                <option value="todos">Todos os produtos</option>
-                <option value="remedios">Remédios</option>
-                <option value="chas">Chás</option>
-                <option value="grao-cereal">Grãos/Cereais</option>
-                <option value="suplementos">Suplementos</option>
-                <option value="sementes">Sementes</option>
-                <option value="fisioquantic">Linha FisioQuantic</option>
-                <option value="outros">Outros</option>
-                <option value="cuidados-pessoais">Cuidados Pessoais</option>
-                <option value="oleos-essenciais">Óleos Essenciais</option>
-
-
-            </select>
+            <div>
+                <label for="filtro" class="filter-text">Filtrar por categoria:</label>
+                <select id="filtro" onchange="atualizarProdutos()">
+                    <option value="todos">Todos os produtos</option>
+                    <option value="remedios">Remédios</option>
+                    <option value="chas">Chás</option>
+                    <option value="grao-cereal">Grãos/Cereais</option>
+                    <option value="suplementos">Suplementos</option>
+                    <option value="sementes">Sementes</option>
+                    <option value="fisioquantic">Linha FisioQuantic</option>
+                    <option value="cuidados-pessoais">Cuidados Pessoais</option>
+                    <option value="oleos-essenciais">Óleos Essenciais</option>
+                    <option value="outros">Outros</option>
+                </select>
+            </div>
+            <div id="mobile_search_bar" class="mobile-search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="mobile_search" oninput="atualizarProdutos()"
+                    placeholder="Digite o nome do produto...">
+            </div>
         </div>
+        <br>
+
+
         <br><br><br>
 
         <div id="conteudoProdutos"></div>
-
-
-
     </section>
 
     <script>
@@ -133,16 +151,21 @@
             }
         });
 
-        // Função para exibir os produtos com base no filtro selecionado
+        // Função para exibir os produtos com base no filtro selecionado e na barra de busca
         function atualizarProdutos() {
             const filtro = document.getElementById("filtro").value;
+            const busca = document.getElementById("search").value.toLowerCase();
             const conteudoProdutos = document.getElementById("conteudoProdutos");
 
             // Limpa o conteúdo de produtos
             conteudoProdutos.innerHTML = "";
 
-            // Filtra os produtos com base na categoria selecionada
-            const produtosFiltrados = filtro === "todos" ? arrayProdutos : arrayProdutos.filter(produto => produto.categoria === filtro);
+            // Filtra os produtos com base na categoria selecionada e no texto de busca
+            const produtosFiltrados = arrayProdutos.filter(produto => {
+                const correspondeCategoria = filtro === "todos" || produto.categoria === filtro;
+                const correspondeBusca = produto.nome.toLowerCase().includes(busca);
+                return correspondeCategoria && correspondeBusca;
+            });
 
             // Exibe os produtos na div
             produtosFiltrados.forEach(produto => {
@@ -155,7 +178,7 @@
                 img.alt = produto.nome;
                 divProduto.appendChild(img);
 
-                //adiciona heart
+                // Adiciona heart
                 const heartDiv = document.createElement("div");
                 heartDiv.className = "div-heart";
                 const heartIcon = document.createElement("i");
@@ -169,7 +192,7 @@
                 nomeProduto.className = "nome-produto";
                 divProduto.appendChild(nomeProduto);
 
-                //adiciona descriçaõ
+                // Adiciona descrição
                 const descricaoProduto = document.createElement("p");
                 descricaoProduto.textContent = produto.descricao;
                 descricaoProduto.className = "descricao-produto";
@@ -184,7 +207,7 @@
                 div.appendChild(valorProduto);
                 divProduto.appendChild(div);
 
-                //adiciona icon
+                // Adiciona icon
                 const btn = document.createElement("button");
                 btn.className = "btn-default";
                 const icon = document.createElement("i");
@@ -200,6 +223,23 @@
                 conteudoProdutos.appendChild(divProduto);
             });
         }
+
+        // Seleciona o botão
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        // Função para mostrar ou esconder o botão de rolar para o topo
+        window.onscroll = function () {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                scrollToTopBtn.style.display = "block";
+            } else {
+                scrollToTopBtn.style.display = "none";
+            }
+        };
+
+        // Função para rolar para o topo da página
+        scrollToTopBtn.addEventListener("click", function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     </script>
 
     <footer>
