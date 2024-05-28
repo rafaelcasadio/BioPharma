@@ -93,6 +93,7 @@
                     <option value="outros">Outros</option>
                 </select>
             </div>
+            <br>
             <div id="mobile_search_bar" class="mobile-search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="mobile_search" oninput="atualizarProdutos()"
@@ -154,7 +155,9 @@
         // Função para exibir os produtos com base no filtro selecionado e na barra de busca
         function atualizarProdutos() {
             const filtro = document.getElementById("filtro").value;
-            const busca = document.getElementById("search").value.toLowerCase();
+            const busca = document.getElementById("search") ? document.getElementById("search").value.toLowerCase() : '';
+            const buscaMobile = document.getElementById("mobile_search") ? document.getElementById("mobile_search").value.toLowerCase() : '';
+            const buscaTermo = busca || buscaMobile;
             const conteudoProdutos = document.getElementById("conteudoProdutos");
 
             // Limpa o conteúdo de produtos
@@ -163,7 +166,7 @@
             // Filtra os produtos com base na categoria selecionada e no texto de busca
             const produtosFiltrados = arrayProdutos.filter(produto => {
                 const correspondeCategoria = filtro === "todos" || produto.categoria === filtro;
-                const correspondeBusca = produto.nome.toLowerCase().includes(busca);
+                const correspondeBusca = produto.nome.toLowerCase().includes(buscaTermo);
                 return correspondeCategoria && correspondeBusca;
             });
 
@@ -240,6 +243,7 @@
         scrollToTopBtn.addEventListener("click", function () {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+
     </script>
 
     <footer>
