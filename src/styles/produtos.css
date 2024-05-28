@@ -62,6 +62,12 @@
     border-radius: 0px 37.5px 0px 42.5px;
 }
 
+.div-heart img{
+    height: 30px;
+    width: auto;
+    
+}
+
 .filter-text {
     color: var(--color-primary-6);
     font-size: 1rem;
