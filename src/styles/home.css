@@ -23,7 +23,19 @@
 
 #cta .description {
     font-size: 1.2rem;
+    color: #0CCA4A;
 }
+
+#cta .description a{
+    text-decoration: none;
+    color: black;
+}
+
+#cta .description a:hover{
+    color: rgb(142, 142, 155);
+}
+
+
 
 #cta_buttons {
     display: flex;
