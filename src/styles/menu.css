@@ -28,6 +28,10 @@
     overflow: hidden;
 }
 
+.dish:hover{
+    scale: 1.02;
+}
+
 .dish-heart {
     position: absolute;
     background-color: var(--color-primary-6);
