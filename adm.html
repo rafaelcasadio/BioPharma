@@ -4,206 +4,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - BioPharma</title>
+    <title>Gerenciar Produtos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        h1 {
             text-align: center;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 50px;
         }
 
         input,
-        textarea,
-        button {
-            margin: 10px;
+        button,
+        select {
             padding: 10px;
-            width: 300px;
-        }
-
-        #product-list {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .product {
-            background-color: white;
-            padding: 20px;
             margin: 10px;
+            font-size: 16px;
+        }
+
+        .produto {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             border: 1px solid #ccc;
-            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .icone {
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+
+        .icone-lixeira {
+            color: red;
+        }
+
+        .icone-editar {
+            color: blue;
+        }
+
+        .container {
+            width: 50%;
+            margin: auto;
+            text-align: left;
+        }
+
+        /* Estilizando o modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 50%;
+            border-radius: 10px;
             text-align: center;
         }
 
-        .edit-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .edit-form input,
-        .edit-form textarea,
-        .edit-form button {
-            margin: 5px;
-            padding: 5px;
-            width: 200px;
+        .close {
+            color: red;
+            font-size: 24px;
+            cursor: pointer;
+            float: right;
         }
     </style>
 </head>
 
 <body>
-    <h1>Administração de Produtos</h1>
-    <input type="file" id="fileInput">
-    <form id="product-form">
-        <input type="text" id="nome" placeholder="Nome" required>
-        <input type="text" id="tipo" placeholder="Tipo" required>
-        <input type="text" id="url" placeholder="URL da Imagem" required>
-        <textarea id="descricao" placeholder="Descrição" required></textarea>
-        <input type="number" step="0.01" id="valor" placeholder="Valor" required>
-        <button type="submit" style="width: 100px;">Adicionar Produto</button>
-    </form>
 
+    <h2>Gerenciar Produtos</h2>
 
-    <button id="saveButton" style="background-color: green; color: white;">Baixar Arquivo</button>
+    <!-- Botão Adicionar Produto -->
+    <button onclick="abrirModalAdicionar()">Adicionar Produto</button>
+    <br><br>
 
-    <div id="product-list">
-        <!-- Produtos serão listados aqui -->
+    <div>
+        <label for="filtro">Filtrar por categoria:</label>
+        <select id="filtro" onchange="carregarProdutos()">
+            <option value="todos">Todos os produtos</option>
+            <option value="remedios">Remédios</option>
+            <option value="chas">Chás</option>
+            <option value="grao-cereal">Grãos/Cereais</option>
+            <option value="suplementos">Suplementos</option>
+            <option value="fisioquantic">Linha FisioQuantic</option>
+            <option value="cuidados-pessoais">Cuidados Pessoais</option>
+            <option value="outros">Outros</option>
+        </select>
+    </div>
+
+    <br>
+
+    <div id="conteudoProdutos"></div>
+
+    <!-- Modal para Edição e Adição -->
+    <div id="modalEdicao" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <h3 id="tituloModal">Editar Produto</h3>
+            <input type="hidden" id="produtoId">
+            <label>Nome:</label>
+            <input type="text" id="produtoNome"><br>
+            <label>Filtro:</label>
+            <input type="text" id="produtoFiltro"><br>
+            <label>Imagem:</label>
+            <input type="file" id="produtoImagem"><br>
+            <label>Descrição:</label>
+            <input type="text" id="produtoDescricao"><br>
+            <label>Preço:</label>
+            <input type="number" id="produtoPreco"><br>
+            <button onclick="salvarEdicao()">Salvar</button>
+        </div>
     </div>
 
     <script>
-        let arrayProdutos = [];
-        let editIndex = -1;
+        function carregarProdutos() {
+            let filtro = document.getElementById('filtro').value;
+            let f = filtro !== 'todos' ? '/' + filtro : '';
 
-        document.getElementById('fileInput').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
+            fetch('http://localhost:3000/produtos' + f)
+                .then(response => response.json())
+                .then(produtos => {
+                    const conteudo = document.getElementById('conteudoProdutos');
+                    conteudo.innerHTML = '';
 
-            reader.onload = function (e) {
-                const text = e.target.result;
-                const linhas = text.split('\n');
-                if (linhas[linhas.length - 1] === "") linhas.pop(); // Remove a última linha vazia, se existir
+                    produtos.forEach(produto => {
+                        const div = document.createElement('div');
+                        div.className = 'produto';
 
-                for (let i = 0; i < linhas.length; i++) {
-                    const valores = linhas[i].split(',');
-                    if (valores.length < 5) continue;
+                        const nomeProduto = document.createElement('p');
+                        nomeProduto.textContent = produto.nome;
+                        div.appendChild(nomeProduto);
 
-                    const produto = {
-                        nome: valores[0].trim(),
-                        tipo: valores[1].trim(),
-                        url: valores[2].trim(),
-                        descricao: valores[3].trim(),
-                        valor: parseFloat(valores[4].trim())
-                    };
-                    arrayProdutos.push(produto);
-                }
+                        const filtroProduto = document.createElement('p');
+                        filtroProduto.textContent = produto.filtro;
+                        div.appendChild(filtroProduto);
 
-                atualizarProdutos();
-            };
+                        const imagemProduto = document.createElement('p');
+                        imagemProduto.textContent = produto.imagem;
+                        div.appendChild(imagemProduto);
 
-            reader.readAsText(file);
-        });
+                        const descricaoProduto = document.createElement('p');
+                        descricaoProduto.textContent = produto.descricao;
+                        div.appendChild(descricaoProduto);
 
+                        const precoProduto = document.createElement('p');
+                        precoProduto.textContent = produto.preco;
+                        div.appendChild(precoProduto);
 
-        document.getElementById('product-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const produto = {
-                nome: document.getElementById('nome').value,
-                tipo: document.getElementById('tipo').value,
-                url: document.getElementById('url').value,
-                descricao: document.getElementById('descricao').value,
-                valor: parseFloat(document.getElementById('valor').value)
-            };
+                        // Ícone de edição
+                        const iconeEditar = document.createElement('i');
+                        iconeEditar.className = 'fa-solid fa-pen-to-square icone icone-editar';
+                        iconeEditar.onclick = () => abrirModalEdicao(produto);
+                        div.appendChild(iconeEditar);
 
-            if (editIndex === -1) {
-                arrayProdutos.push(produto);
-            } else {
-                arrayProdutos[editIndex] = produto;
-                editIndex = -1;
+                        // Ícone de lixeira (exclusão)
+                        const iconeLixeira = document.createElement('i');
+                        iconeLixeira.className = 'fa-solid fa-trash icone icone-lixeira';
+                        iconeLixeira.onclick = () => confirmarDelecao(produto.id, produto.nome);
+                        div.appendChild(iconeLixeira);
+
+                        conteudo.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar produtos:', error);
+                });
+        }
+
+        function confirmarDelecao(produtoId, produtoNome) {
+            const confirmacao = confirm(`Tem certeza que deseja deletar o produto "${produtoNome}"?`);
+            if (confirmacao) {
+                deletarProduto(produtoId);
+            }
+        }
+
+        function deletarProduto(produtoId) {
+            fetch(`http://localhost:3000/produtos/${produtoId}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    carregarProdutos();
+                })
+                .catch(error => {
+                    console.error("Erro ao deletar produto:", error);
+                });
+        }
+
+        function abrirModalEdicao(produto) {
+            document.getElementById('produtoId').value = produto.id;
+            document.getElementById('produtoNome').value = produto.nome;
+            document.getElementById('produtoFiltro').value = produto.filtro;
+            document.getElementById('produtoDescricao').value = produto.descricao;
+            document.getElementById('produtoPreco').value = produto.preco;
+            document.getElementById('tituloModal').textContent = "Editar Produto";
+            document.getElementById('modalEdicao').style.display = 'block';
+        }
+
+        function abrirModalAdicionar() {
+            document.getElementById('produtoId').value = '';
+            document.getElementById('produtoNome').value = '';
+            document.getElementById('produtoFiltro').value = '';
+            document.getElementById('produtoImagem').value = '';
+            document.getElementById('produtoDescricao').value = '';
+            document.getElementById('produtoPreco').value = '';
+            document.getElementById('tituloModal').textContent = "Adicionar Produto";
+            document.getElementById('modalEdicao').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEdicao').style.display = 'none';
+        }
+
+        function salvarEdicao() {
+            const id = document.getElementById('produtoId').value;
+            const nome = document.getElementById('produtoNome').value;
+            const filtro = document.getElementById('produtoFiltro').value;
+            const imagem = document.getElementById('produtoImagem').files[0]; // Capturando o arquivo de imagem
+            const descricao = document.getElementById('produtoDescricao').value;
+            const preco = document.getElementById('produtoPreco').value;
+
+            let metodo = 'PUT';
+            let url = `http://localhost:3000/produtos/${id}`;
+
+            if (!id) {
+                metodo = 'POST';
+                url = `http://localhost:3000/produtos`;
             }
 
-            atualizarProdutos();
-            document.getElementById('product-form').reset();
-        });
+            const formData = new FormData();
+            formData.append('nome', nome);
+            formData.append('filtro', filtro);
+            if (imagem) {
+                formData.append('imagem', imagem); // Enviando o arquivo de imagem se existir
+            }
+            formData.append('descricao', descricao);
+            formData.append('preco', preco);
 
-
-        document.getElementById('saveButton').addEventListener('click', function () {
-            let csvContent = "";
-            arrayProdutos.forEach(produto => {
-                csvContent += `${produto.nome},${produto.tipo},${produto.url},${produto.descricao},${produto.valor}\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "products.csv");
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-
-
-        function atualizarProdutos() {
-            const conteudoProdutos = document.getElementById('product-list');
-            conteudoProdutos.innerHTML = "";
-
-            arrayProdutos.forEach((produto, index) => {
-                const divProduto = document.createElement('div');
-                divProduto.className = 'product';
-
-                const nomeProduto = document.createElement('p');
-                nomeProduto.textContent = `${produto.nome} - ${produto.tipo}`;
-                divProduto.appendChild(nomeProduto);
-
-                const descricaoProduto = document.createElement('p');
-                descricaoProduto.textContent = produto.descricao;
-                divProduto.appendChild(descricaoProduto);
-
-                const valorProduto = document.createElement('p');
-                valorProduto.textContent = `R$${produto.valor.toFixed(2)}`;
-                divProduto.appendChild(valorProduto);
-
-                const editButton = document.createElement('button');
-                editButton.textContent = 'Editar';
-                editButton.onclick = function () {
-                    document.getElementById('nome').value = produto.nome;
-                    document.getElementById('tipo').value = produto.tipo;
-                    document.getElementById('url').value = produto.url;
-                    document.getElementById('descricao').value = produto.descricao;
-                    document.getElementById('valor').value = produto.valor;
-                    editIndex = index;
-                };
-                divProduto.appendChild(editButton);
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'Remover';
-                removeButton.onclick = function () {
-                    arrayProdutos.splice(index, 1);
-                    atualizarProdutos();
-                };
-                divProduto.appendChild(removeButton);
-
-                conteudoProdutos.appendChild(divProduto);
-            });
+            fetch(url, {
+                method: metodo,
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fecharModal();
+                    carregarProdutos();
+                })
+                .catch(error => {
+                    console.error("Erro ao salvar produto:", error);
+                });
         }
+
+
+        carregarProdutos();
     </script>
+
 </body>
 
 </html>

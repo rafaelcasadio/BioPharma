@@ -37,8 +37,6 @@
                 <input type="text" id="search" oninput="atualizarProdutos()" placeholder="Digite o nome do produto...">
             </div>
 
-
-
             <a href="https://wa.me/34413169" target="_blank" style="text-decoration: none;" id="link_btn_header">
                 <button class="btn-default">
                     <i class="fa-brands fa-whatsapp"></i>
@@ -73,14 +71,13 @@
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 
-
     <section id="produtos">
         <h1>Produtos</h1>
 
         <div class="filter">
             <div>
                 <label for="filtro" class="filter-text">Filtrar por categoria:</label>
-                <select id="filtro" onchange="atualizarProdutos()">
+                <select id="filtro" onchange="carregarProdutos()">
                     <option value="todos">Todos os produtos</option>
                     <option value="remedios">Remédios</option>
                     <option value="chas">Chás</option>
@@ -90,17 +87,15 @@
                     <option value="cuidados-pessoais">Cuidados Pessoais</option>
                     <option value="outros">Outros</option>
                 </select>
-              
             </div>
             <br>
             <div id="mobile_search_bar" class="mobile-search-bar">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="mobile_search" oninput="atualizarProdutos()"
+                <input type="text" id="mobile_search" oninput="carregarProdutos()"
                     placeholder="Digite o nome do produto...">
             </div>
         </div>
         <br>
-
 
         <br><br><br>
 
@@ -108,140 +103,60 @@
     </section>
 
     <script>
-        let arrayProdutos = []; // Declare a variável arrayProdutos fora do escopo da função
 
-        // Função para ler um arquivo CSV e converter em um array de objetos de produtos
-        function lerCSVParaArray(nomeArquivo, callback) {
-            fetch(nomeArquivo)
-                .then(response => response.text())
-                .then(text => {
-                    const linhas = text.split('\n');
-                    const produtos = [];
+        
+        
 
-                    for (let i = 1; i < linhas.length; i++) {
-                        const valores = linhas[i].split(',');
-                        const produto = {
-                            nome: valores[0].trim(),
-                            categoria: valores[1].trim(),
-                            imagem: valores[2].trim(), // Assumindo que a terceira coluna é o caminho da imagem
-                            descricao: valores[3].trim(), // Assumindo que a quarta coluna é a descrição
-                            valor: parseFloat(valores[4].trim()) // Converte o valor para número
-                        };
+        function carregarProdutos(){
+            let filtro = document.getElementById('filtro').value;
+            let f;
 
-                        produtos.push(produto);
-                    }
-
-                    arrayProdutos = produtos; // Atribua os produtos ao arrayProdutos aqui
-
-                    callback(null, produtos);
-                })
-                .catch(error => {
-                    callback(error, null);
-                });
-        }
-
-        // Exemplo de uso
-        const nomeArquivo = 'remedios.csv';
-        lerCSVParaArray(nomeArquivo, (erro, produtos) => {
-            if (erro) {
-                console.error('Erro ao ler o arquivo CSV:', erro);
-            } else {
-                console.log(arrayProdutos);
-                atualizarProdutos(); // Chame a função atualizarProdutos após carregar os produtos
+            if(filtro !=='todos'){
+                f = '/' + filtro;
             }
-        });
+            else{
+                f = '';
+            }
 
-        // Função para exibir os produtos com base no filtro selecionado e na barra de busca
-        function atualizarProdutos() {
-            const filtro = document.getElementById("filtro").value;
-            const busca = document.getElementById("search") ? document.getElementById("search").value.toLowerCase() : '';
-            const buscaMobile = document.getElementById("mobile_search") ? document.getElementById("mobile_search").value.toLowerCase() : '';
-            const buscaTermo = busca || buscaMobile;
-            const conteudoProdutos = document.getElementById("conteudoProdutos");
+            fetch('http://localhost:3000/produtos'+f)
+            .then(response => response.json())
+            .then(produtos => {
+                const conteudo = document.getElementById('conteudoProdutos');
+                conteudo.innerHTML = ''; // Limpa o conteúdo existente antes de adicionar novos produtos
 
-            // Limpa o conteúdo de produtos
-            conteudoProdutos.innerHTML = "";
+                produtos.forEach(produto => {
+                    const div = document.createElement('div');
+                    div.className = 'produto';
 
-            // Filtra os produtos com base na categoria selecionada e no texto de busca
-            const produtosFiltrados = arrayProdutos.filter(produto => {
-                const correspondeCategoria = filtro === "todos" || produto.categoria === filtro;
-                const correspondeBusca = produto.nome.toLowerCase().includes(buscaTermo);
-                return correspondeCategoria && correspondeBusca;
-            });
+                    const heart = document.createElement('div');
+                    heart.className = 'div-heart';
+                    heart.innerHTML = '<i class="fa-solid fa-heart"></i>';
+                    div.appendChild(heart);
 
-            // Exibe os produtos na div
-            produtosFiltrados.forEach(produto => {
-                const divProduto = document.createElement("div");
-                divProduto.className = "produto";
+                    const image = document.createElement('img');
+                    image.src = produto.imagem;
+                    div.appendChild(image);
 
-                // Adiciona a imagem
-                const img = document.createElement("img");
-                img.src = produto.imagem;
-                img.alt = produto.nome;
-                divProduto.appendChild(img);
+                    const nomeProduto = document.createElement('p');  
+                    nomeProduto.textContent = produto.nome;  
+                    nomeProduto.className = 'nome-produto';
+                    div.appendChild(nomeProduto);  
 
-                // Adiciona heart
-                const heartDiv = document.createElement("div");
-                heartDiv.className = "div-heart";
-                const heartIcon = document.createElement("img");
-                heartIcon.src = "src/images/testesla.png";
-                heartDiv.appendChild(heartIcon);
-                divProduto.appendChild(heartDiv);
+                    const precoProduto = document.createElement('p');  
+                    precoProduto.textContent = 'R$ ' + produto.preco;  
+                    precoProduto.className = 'preco-produto';
+                    div.appendChild(precoProduto);  
 
-                // Adiciona o nome
-                const nomeProduto = document.createElement("p");
-                nomeProduto.textContent = produto.nome;
-                nomeProduto.className = "nome-produto";
-                divProduto.appendChild(nomeProduto);
-
-                // Adiciona descrição
-                const descricaoProduto = document.createElement("p");
-                descricaoProduto.textContent = produto.descricao;
-                descricaoProduto.className = "descricao-produto";
-                divProduto.appendChild(descricaoProduto);
-
-                // Adiciona o valor
-                const div = document.createElement("div");
-                div.className = "div-alinhar";
-                const valorProduto = document.createElement("p");
-                valorProduto.textContent = `R$${produto.valor.toFixed(2)}`;
-                valorProduto.className = "valor-produto";
-                div.appendChild(valorProduto);
-                divProduto.appendChild(div);
-
-                // Adiciona icon
-                const btn = document.createElement("button");
-                btn.className = "btn-default";
-                const icon = document.createElement("i");
-                icon.className = "fa-solid fa-basket-shopping";
-                btn.appendChild(icon);
-
-                div.appendChild(btn);
-
-                btn.addEventListener("click", function () {
-                    window.open("https://wa.me/34413169", "_blank");
+                    conteudo.appendChild(div);
                 });
-
-                conteudoProdutos.appendChild(divProduto);
+            })
+            .catch(error => {
+                console.error('Erro ao buscar produtos:', error);
             });
         }
 
-        // Seleciona o botão
-        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
-
-        // Função para mostrar ou esconder o botão de rolar para o topo
-        window.onscroll = function () {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                scrollToTopBtn.style.display = "block";
-            } else {
-                scrollToTopBtn.style.display = "none";
-            }
-        };
-
-        // Função para rolar para o topo da página
-        scrollToTopBtn.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        carregarProdutos();
+        
 
     </script>
 
