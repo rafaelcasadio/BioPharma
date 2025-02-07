@@ -131,6 +131,14 @@
     </div>
 
     <script>
+
+        const token = sessionStorage.getItem('token');
+
+        if (!token) {
+            // Se não houver token, redireciona para a página de login
+            window.location.href = 'loginadm.html';
+        }
+
         function carregarProdutos() {
             let filtro = document.getElementById('filtro').value;
             let f = filtro !== 'todos' ? '/' + filtro : '';

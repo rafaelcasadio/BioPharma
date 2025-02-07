@@ -2,11 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use(cors());
+
+const SECRET_KEY = 'secreto123'; // Troque por uma chave segura
 
 // Configuração do multer para salvar imagens na pasta 'imagens'
 const storage = multer.diskStorage({
@@ -40,6 +45,21 @@ db.connect((err) => {
 });
 
 // Rotas
+
+app.post('/loginadm', (req, res) => {
+  const { login, senha } = req.body;
+  
+  db.query('SELECT * FROM administradores WHERE login = ? AND senha = ?', [login, senha], (err, results) => {
+      if (err) return res.status(500).json({ message: 'Erro no servidor' });
+      
+      if (results.length > 0) {
+          const token = jwt.sign({ login }, SECRET_KEY, { expiresIn: '1h' });
+          return res.json({ token });
+      }
+      
+      res.status(401).json({ message: 'Credenciais inválidas' });
+  });
+});
 
 app.get('/produtos', (req, res) => {
   db.query('SELECT * FROM produtos', (err, results) => {
@@ -135,9 +155,6 @@ app.delete('/produtos/:id', (req, res) => {
   });
 });
 
-const fs = require('fs');
-const path = require('path');
-
 app.put('/produtos/:id', upload.single('imagem'), (req, res) => {
   const id = req.params.id;
   const { nome, filtro, descricao, preco } = req.body;
@@ -192,7 +209,6 @@ app.put('/produtos/:id', upload.single('imagem'), (req, res) => {
     });
   });
 });
-
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);

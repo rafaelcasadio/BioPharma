@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-container button:hover {
+            background-color: #45a049;
+        }
+
+        .message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="text" id="login" placeholder="Nome de usuário" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+        <button onclick="login()">Entrar</button>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const login = document.getElementById('login').value;
+            const senha = document.getElementById('senha').value;
+
+            const response = await fetch('http://localhost:3000/loginadm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ login, senha }),
+            });
+
+            const data = await response.json();
+
+            const messageElement = document.getElementById('message');
+
+            if (response.ok) {
+                messageElement.textContent = 'Login bem-sucedido!';
+                messageElement.classList.remove('error');
+                messageElement.classList.add('success');
+                sessionStorage.setItem('token', data.token);
+                window.location.href = "adm.html";
+            } else {
+                messageElement.textContent = data.message;
+                messageElement.classList.remove('success');
+                messageElement.classList.add('error');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
