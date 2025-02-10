@@ -1,0 +1,38 @@
+#conteudo{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+#produtoDetalhes{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+
+    img{
+        width: 70%;
+        height: 70%;
+    }
+
+    h1{
+        font-size: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    p{
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+}
+
+#comprar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}

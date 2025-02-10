@@ -85,6 +85,26 @@ app.get('/produtos/:categoria', (req, res) => {
   });
 });
 
+app.get('/produtodetails/:id', (req, res) => {
+  const { id } = req.params;
+  
+  db.query('SELECT * FROM produtos WHERE id = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao realizar a consulta: ', err);
+      res.status(500).send('Erro interno');
+      return;
+    }
+
+    // Verifica se algum produto foi encontrado
+    if (results.length === 0) {
+      return res.status(404).send('Produto não encontrado');
+    }
+
+    // Retorna o primeiro produto encontrado
+    res.json(results[0]);
+  });
+});
+
 app.post('/produtos', upload.single('imagem'), (req, res) => {
   const { nome, filtro, descricao, preco } = req.body;
 
