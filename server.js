@@ -72,14 +72,36 @@ app.get('/produtos', (req, res) => {
   });
 });
 
-app.get('/produtos/:categoria', (req, res) => {
+app.get('/produtos/:categoria?', (req, res) => {
   const { categoria } = req.params;
-  
-  db.query('SELECT * FROM produtos WHERE filtro = ?', [categoria], (err, results) => {
+  const { search } = req.query;
+
+  let query = 'SELECT * FROM produtos';
+  const queryParams = [];
+  const conditions = [];
+
+  // Filtro por categoria (se fornecida e diferente de "todos")
+  if (categoria && categoria !== 'todos') {
+    conditions.push('filtro = ?'); // Mantive "filtro" como no seu código original
+    queryParams.push(categoria);
+  }
+
+  // Filtro por pesquisa (se fornecida)
+  if (search) {
+    conditions.push('nome LIKE ?'); // Mantive "nome" como no seu código original
+    queryParams.push(`%${search}%`);
+  }
+
+  // Adiciona condições à query se houver filtros
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  // Executa a consulta no banco de dados
+  db.query(query, queryParams, (err, results) => {
     if (err) {
       console.error('Erro ao realizar a consulta: ', err);
-      res.status(500).send('Erro interno');
-      return;
+      return res.status(500).json({ error: 'Erro interno ao buscar produtos' });
     }
     res.json(results);
   });

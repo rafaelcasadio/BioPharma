@@ -1,15 +1,20 @@
+document.getElementById('search').addEventListener('input', function() {
+    carregarProdutos();
+});
+
 function carregarProdutos() {
     let filtro = document.getElementById('filtro').value;
+    let pesquisa = document.getElementById('search').value.trim(); // Captura o valor da barra de pesquisa e remove espaços em branco
     let f;
 
-    if (filtro !== 'todos') {
-        f = '/' + filtro;
-    }
-    else {
-        f = '';
-    }
+    
+     f = '/' + filtro;
+    
 
-    fetch('http://localhost:3000/produtos' + f)
+    // Adiciona o parâmetro de pesquisa à URL
+    let url = 'http://localhost:3000/produtos' + f + '?search=' + encodeURIComponent(pesquisa);
+
+    fetch(url)
         .then(response => response.json())
         .then(produtos => {
             const conteudo = document.getElementById('conteudoProdutos');
@@ -49,4 +54,5 @@ function carregarProdutos() {
         });
 }
 
+// Carrega os produtos ao carregar a página
 carregarProdutos();
