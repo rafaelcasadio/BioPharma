@@ -32,6 +32,11 @@ function carregarProdutos() {
                 heart.innerHTML = '<i class="fa-solid fa-heart"></i>';
                 div.appendChild(heart);
 
+                const semEstoque = document.createElement('div');
+                semEstoque.className = 'div-sem-estoque';
+                semEstoque.innerHTML = '<h5> Produto sem estoque </h5>';
+                div.appendChild(semEstoque);
+
                 const image = document.createElement('img');
                 image.src = produto.imagem;
                 div.appendChild(image);
@@ -47,6 +52,17 @@ function carregarProdutos() {
                 div.appendChild(precoProduto);
 
                 conteudo.appendChild(div);
+
+                const estoque = produto.estoque;
+
+                if(!estoque){
+                    div.style.opacity = '0.5';
+                    div.style.pointerEvents = 'none';
+                    div.style.cursor = 'not-allowed';
+                    div.classList.add('produto-indisponivel');
+                    semEstoque.style.display = 'block';
+                }
+
             });
         })
         .catch(error => {

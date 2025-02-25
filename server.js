@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const port = 3000;
 
@@ -16,242 +16,214 @@ const SECRET_KEY = 'secreto123'; // Troque por uma chave segura
 // Configuração do multer para salvar imagens na pasta 'imagens'
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Salvar o arquivo na pasta 'imagens'
-    cb(null, './src/images');  // A pasta real onde as imagens são salvas
+    cb(null, './src/images'); // A pasta real onde as imagens são salvas
   },
   filename: function (req, file, cb) {
-    const fileName = Date.now() + '-' + file.originalname;  // Gera um nome único para o arquivo
-    cb(null, fileName);  // Salva o arquivo com nome único
-  }
+    const fileName = Date.now() + '-' + file.originalname; // Gera um nome único para o arquivo
+    cb(null, fileName); // Salva o arquivo com nome único
+  },
 });
 
 const upload = multer({ storage: storage });
 
-// Criando a conexão com o banco de dados
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '34413169',
-  database: 'farmacia'
-});
-
-// Conectando ao banco
-db.connect((err) => {
-  if (err) {
-    console.error('Erro ao conectar ao banco de dados: ', err);
-    return;
-  }
-  console.log('Conexão bem-sucedida ao banco de dados!');
-});
+// Configuração do Supabase
+const supabaseUrl = 'https://cmqfnzipoyyerdieuqmx.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtcWZuemlwb3l5ZXJkaWV1cW14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA1MDMxNDQsImV4cCI6MjA1NjA3OTE0NH0.7ToJTI_os0GYyDM38yBvR1rPUuY6a-elT9MA7jXvqK0';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Rotas
 
-app.post('/loginadm', (req, res) => {
+// Rota de login
+app.post('/loginadm', async (req, res) => {
   const { login, senha } = req.body;
-  
-  db.query('SELECT * FROM administradores WHERE login = ? AND senha = ?', [login, senha], (err, results) => {
-      if (err) return res.status(500).json({ message: 'Erro no servidor' });
-      
-      if (results.length > 0) {
-          const token = jwt.sign({ login }, SECRET_KEY, { expiresIn: '1h' });
-          return res.json({ token });
-      }
-      
-      res.status(401).json({ message: 'Credenciais inválidas' });
-  });
+
+  const { data, error } = await supabase
+    .from('administradores')
+    .select('*')
+    .eq('login', login)
+    .eq('senha', senha);
+
+  if (error) return res.status(500).json({ message: 'Erro no servidor' });
+
+  if (data.length > 0) {
+    const token = jwt.sign({ login }, SECRET_KEY, { expiresIn: '1h' });
+    return res.json({ token });
+  }
+
+  res.status(401).json({ message: 'Credenciais inválidas' });
 });
 
-app.get('/produtos', (req, res) => {
-  db.query('SELECT * FROM produtos', (err, results) => {
-    if (err) {
-      console.error('Erro ao realizar a consulta: ', err);
-      res.status(500).send('Erro interno');
-      return;
-    }
-    res.json(results);
-  });
+// Listar todos os produtos
+app.get('/produtos', async (req, res) => {
+  const { data, error } = await supabase.from('produtos').select('*');
+
+  if (error) {
+    console.error('Erro ao realizar a consulta: ', error);
+    res.status(500).send('Erro interno');
+    return;
+  }
+  res.json(data);
 });
 
-app.get('/produtos/:categoria?', (req, res) => {
+// Listar produtos por categoria ou pesquisa
+app.get('/produtos/:categoria?', async (req, res) => {
   const { categoria } = req.params;
   const { search } = req.query;
 
-  let query = 'SELECT * FROM produtos';
-  const queryParams = [];
-  const conditions = [];
+  let query = supabase.from('produtos').select('*');
 
-  // Filtro por categoria (se fornecida e diferente de "todos")
   if (categoria && categoria !== 'todos') {
-    conditions.push('filtro = ?'); // Mantive "filtro" como no seu código original
-    queryParams.push(categoria);
+    query = query.eq('filtro', categoria);
   }
 
-  // Filtro por pesquisa (se fornecida)
   if (search) {
-    conditions.push('nome LIKE ?'); // Mantive "nome" como no seu código original
-    queryParams.push(`%${search}%`);
+    query = query.ilike('nome', `%${search}%`);
   }
 
-  // Adiciona condições à query se houver filtros
-  if (conditions.length > 0) {
-    query += ' WHERE ' + conditions.join(' AND ');
-  }
+  const { data, error } = await query;
 
-  // Executa a consulta no banco de dados
-  db.query(query, queryParams, (err, results) => {
-    if (err) {
-      console.error('Erro ao realizar a consulta: ', err);
-      return res.status(500).json({ error: 'Erro interno ao buscar produtos' });
-    }
-    res.json(results);
-  });
+  if (error) {
+    console.error('Erro ao realizar a consulta: ', error);
+    return res.status(500).json({ error: 'Erro interno ao buscar produtos' });
+  }
+  res.json(data);
 });
 
-app.get('/produtodetails/:id', (req, res) => {
+// Detalhes de um produto específico
+app.get('/produtodetails/:id', async (req, res) => {
   const { id } = req.params;
-  
-  db.query('SELECT * FROM produtos WHERE id = ?', [id], (err, results) => {
-    if (err) {
-      console.error('Erro ao realizar a consulta: ', err);
-      res.status(500).send('Erro interno');
-      return;
-    }
 
-    // Verifica se algum produto foi encontrado
-    if (results.length === 0) {
-      return res.status(404).send('Produto não encontrado');
-    }
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('*')
+    .eq('id', id);
 
-    // Retorna o primeiro produto encontrado
-    res.json(results[0]);
-  });
+  if (error) {
+    console.error('Erro ao realizar a consulta: ', error);
+    res.status(500).send('Erro interno');
+    return;
+  }
+
+  if (data.length === 0) {
+    return res.status(404).send('Produto não encontrado');
+  }
+
+  res.json(data[0]);
 });
 
-app.post('/produtos', upload.single('imagem'), (req, res) => {
-  const { nome, filtro, descricao, preco } = req.body;
+// Adicionar um novo produto
+app.post('/produtos', upload.single('imagem'), async (req, res) => {
+  const { nome, filtro, descricao, preco, estoque } = req.body;
+  const imagem = 'src/images/' + req.file.filename;
 
-  // Aqui é onde a imagem vai ter o caminho 'src/images/nome-do-arquivo.extensão'
-  const imagem = 'src/images/' + req.file.filename;  // Caminho relativo que será salvo no banco
-
-  if (!nome || !filtro || !imagem || !descricao || !preco) {
+  if (!nome || !filtro || !imagem || !descricao || !preco || !estoque) {
     return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
   }
 
-  const query = 'INSERT INTO produtos (nome, filtro, imagem, descricao, preco) VALUES (?, ?, ?, ?, ?)';
-  const values = [nome, filtro, imagem, descricao, preco];
+  const { data, error } = await supabase
+    .from('produtos')
+    .insert([{ nome, filtro, imagem, descricao, preco, estoque }]);
 
-  db.execute(query, values, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erro ao inserir produto' });
-    }
-    res.status(201).json({ id: results.insertId, nome, filtro, imagem, descricao, preco });
-  });
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao inserir produto' });
+  }
+  res.status(201).json({ id: data[0].id, nome, filtro, imagem, descricao, preco, estoque });
 });
 
-app.delete('/produtos/:id', (req, res) => {
+// Deletar um produto
+app.delete('/produtos/:id', async (req, res) => {
   const { id } = req.params;
 
-  // Consultar o produto no banco para pegar o caminho da imagem
-  const querySelect = 'SELECT imagem FROM produtos WHERE id = ?';
+  const { data, error } = await supabase
+    .from('produtos')
+    .select('imagem')
+    .eq('id', id);
 
-  db.execute(querySelect, [id], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erro ao buscar produto' });
-    }
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Erro ao buscar produto' });
+  }
 
-    if (results.length === 0) {
-      return res.status(404).json({ message: 'Produto não encontrado!' });
-    }
+  if (data.length === 0) {
+    return res.status(404).json({ message: 'Produto não encontrado!' });
+  }
 
-    const produto = results[0];
-    const caminhoImagem = path.resolve(__dirname, produto.imagem);
+  const produto = data[0];
+  const caminhoImagem = path.resolve(__dirname, produto.imagem);
 
-    // Deletar a imagem, se ela existir
-    if (produto.imagem && fs.existsSync(caminhoImagem)) {
-      fs.unlink(caminhoImagem, (err) => {
-        if (err) {
-          console.error('Erro ao excluir a imagem:', err);
-        } else {
-          console.log('Imagem excluída com sucesso');
-        }
-      });
-    }
-
-    // Agora, deletar o produto do banco de dados
-    const queryDelete = 'DELETE FROM produtos WHERE id = ?';
-    
-    db.execute(queryDelete, [id], (err, results) => {
+  if (produto.imagem && fs.existsSync(caminhoImagem)) {
+    fs.unlink(caminhoImagem, (err) => {
       if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erro ao deletar produto' });
+        console.error('Erro ao excluir a imagem:', err);
+      } else {
+        console.log('Imagem excluída com sucesso');
       }
-
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: 'Produto não encontrado!' });
-      }
-
-      res.status(200).json({ message: 'Produto deletado com sucesso!' });
     });
-  });
+  }
+
+  const { error: deleteError } = await supabase
+    .from('produtos')
+    .delete()
+    .eq('id', id);
+
+  if (deleteError) {
+    console.error(deleteError);
+    return res.status(500).json({ message: 'Erro ao deletar produto' });
+  }
+
+  res.status(200).json({ message: 'Produto deletado com sucesso!' });
 });
 
-app.put('/produtos/:id', upload.single('imagem'), (req, res) => {
+// Atualizar um produto
+app.put('/produtos/:id', upload.single('imagem'), async (req, res) => {
   const id = req.params.id;
-  const { nome, filtro, descricao, preco } = req.body;
+  const { nome, filtro, descricao, preco, estoque } = req.body;
   const novaImagem = req.file ? 'src/images/' + req.file.filename : null;
 
-  // Primeiro, buscamos o produto no banco para pegar a imagem antiga
-  const querySelect = 'SELECT imagem FROM produtos WHERE id = ?';
-  
-  db.execute(querySelect, [id], (err, results) => {
-    if (err) {
-      console.error("Erro ao buscar produto:", err);
-      return res.status(500).json({ message: "Erro ao buscar produto." });
-    }
+  const { data: produtoData, error: selectError } = await supabase
+    .from('produtos')
+    .select('imagem')
+    .eq('id', id);
 
-    if (results.length === 0) {
-      return res.status(404).json({ message: "Produto não encontrado." });
-    }
+  if (selectError) {
+    console.error('Erro ao buscar produto:', selectError);
+    return res.status(500).json({ message: 'Erro ao buscar produto.' });
+  }
 
-    const produto = results[0];
-    const imagemAntiga = produto.imagem;
+  if (produtoData.length === 0) {
+    return res.status(404).json({ message: 'Produto não encontrado.' });
+  }
 
-    // Se existir uma imagem antiga, excluímos ela
-    if (imagemAntiga && fs.existsSync(path.resolve(__dirname, imagemAntiga))) {
-      fs.unlink(path.resolve(__dirname, imagemAntiga), (err) => {
-        if (err) {
-          console.error('Erro ao excluir a imagem antiga:', err);
-        } else {
-          console.log('Imagem antiga excluída com sucesso');
-        }
-      });
-    }
+  const produto = produtoData[0];
+  const imagemAntiga = produto.imagem;
 
-    // Se uma nova imagem foi enviada, atualizamos o caminho
-    const imagem = novaImagem ? novaImagem : imagemAntiga; // Se não houver nova imagem, mantemos a antiga
-
-    // Atualizando o produto no banco de dados
-    const sql = `UPDATE produtos 
-                 SET nome = ?, filtro = ?, imagem = ?, descricao = ?, preco = ? 
-                 WHERE id = ?`;
-
-    db.query(sql, [nome, filtro, imagem, descricao, preco, id], (err, result) => {
+  if (novaImagem && imagemAntiga && fs.existsSync(path.resolve(__dirname, imagemAntiga))) {
+    fs.unlink(path.resolve(__dirname, imagemAntiga), (err) => {
       if (err) {
-        console.error("Erro ao atualizar o produto:", err);
-        return res.status(500).json({ message: "Erro ao atualizar o produto." });
+        console.error('Erro ao excluir a imagem antiga:', err);
+      } else {
+        console.log('Imagem antiga excluída com sucesso');
       }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Produto não encontrado." });
-      }
-
-      res.json({ message: "Produto atualizado com sucesso!" });
     });
-  });
+  }
+
+  const imagem = novaImagem || imagemAntiga;
+
+  const { data, error } = await supabase
+    .from('produtos')
+    .update({ nome, filtro, imagem, descricao, preco, estoque })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Erro ao atualizar o produto:', error);
+    return res.status(500).json({ message: 'Erro ao atualizar o produto.' });
+  }
+
+  res.json({ message: 'Produto atualizado com sucesso!', imagem });
 });
 
+// Iniciar o servidor
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });

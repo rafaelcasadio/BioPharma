@@ -33,6 +33,16 @@
     box-sizing: border-box;
 }
 
+.div-sem-estoque{
+    display: none;
+}
+
+.produto-indisponivel{
+    .div-heart{
+        background-color: red;
+    }
+}
+
 .produto:hover {
     scale: 1.02;
 }
