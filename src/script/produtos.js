@@ -11,8 +11,9 @@ function carregarProdutos() {
      f = '/' + filtro;
     
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     // Adiciona o parâmetro de pesquisa à URL
-    let url = 'http://localhost:3000/produtos' + f + '?search=' + encodeURIComponent(pesquisa);
+    let url = baseUrl+'/produtos' + f + '?search=' + encodeURIComponent(pesquisa);
 
     fetch(url)
         .then(response => response.json())
