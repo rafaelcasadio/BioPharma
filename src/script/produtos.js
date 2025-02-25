@@ -12,9 +12,9 @@ function carregarProdutos() {
     
 
     // Adiciona o parâmetro de pesquisa à URL
-    let url = 'https://biopharmaleopoldina.vercel.app/produtos' + f + '?search=' + encodeURIComponent(pesquisa);
+    let url = 'https://biopharmaleopoldina.vercel.app//produtos' + f + '?search=' + encodeURIComponent(pesquisa);
 
-    fetch(url)
+    fetch(url, {mode: 'no-cors'})
         .then(response => response.json())
         .then(produtos => {
             const conteudo = document.getElementById('conteudoProdutos');
